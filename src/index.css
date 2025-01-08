@@ -1,0 +1,17 @@
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+body {
+  background: rgb(153, 97, 155);
+  background: linear-gradient(90deg, rgb(178, 106, 180) 0%, rgba(190, 100, 194, 0.998) 43%, rgba(117,162,250,1) 100%);
+}
+
+button {
+  cursor: pointer;
+}

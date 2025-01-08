@@ -1,0 +1,16 @@
+
+
+.tilt, .tilt-inner {
+    height: 150px;
+    width:150px;
+}
+
+.tilt-inner {
+    height: 100%;
+    background: rgb(153, 97, 155);
+    background: linear-gradient(90deg, rgb(178, 106, 180) 0%, rgba(190, 100, 194, 0.998) 43%, rgba(117,162,250,1) 100%);
+    font-size: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
