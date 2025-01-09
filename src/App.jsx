@@ -71,7 +71,7 @@ function App() {
     fetch("https://api.clarifai.com/v2/models/" + 'face-detection/' + "outputs", returnClarifaiRequestOptions('https://plus.unsplash.com/premium_photo-1671656349322-41de944d259b?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8ZmFjZXxlbnwwfHwwfHx8MA%3D%3D'))
         .then(response => response.json())
         .then(result => {
-            console.log('result' + result)
+            console.log('result', result.outputs[0].data.regions[0].region_info.bounding_box)
 
             
 
