@@ -4,13 +4,15 @@ import 'tachyons'
 import { useEffect, useState } from "react";
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim"; 
-// import Clarifai from 'clarifai';
+
 
 import Navigation from './components/Navigation/Navigation'
 import Logo from './components/Logo/Logo';
 import Rank from './components/Rank/Rank';
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import FaceRecognition from './components/FaceRecognition/FaceRecognition';
+import SignIn from './components/SignIn/SignIn'
+import Register from './components/Register/Register';
 
 
 
@@ -50,8 +52,14 @@ const returnClarifaiRequestOptions = (imageURL) => {
 
 
 function App() {
-  const [ init, setInit ] = useState(false)
-//   const [imageUrl, setImageUrl] = useState('')
+  const [ init, setInit ] = useState(false) //particles module
+  const [data, setData] = useState({
+    input: '',
+    imageURL: '',
+    box: {},
+    route: 'signin'
+  })
+ 
 
   //background particles
   useEffect(() => {
@@ -63,20 +71,49 @@ function App() {
 }, []);
 
   const onInputChange = (event) => {
-    console.log(event.target.value)
+    setData(prevState => ({
+        ...prevState,
+        input: event.target.value
+    }))
   }
 
   const onSubmit = () => {
-    // setImageUrl()
-    fetch("https://api.clarifai.com/v2/models/" + 'face-detection/' + "outputs", returnClarifaiRequestOptions('https://plus.unsplash.com/premium_photo-1671656349322-41de944d259b?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8ZmFjZXxlbnwwfHwwfHx8MA%3D%3D'))
+    setData(prevState => ({
+        ...prevState,
+        imageURL: data.input
+    }))
+    
+    fetch("https://api.clarifai.com/v2/models/" + 'face-detection/' + "outputs", returnClarifaiRequestOptions(data.input))
         .then(response => response.json())
         .then(result => {
-            console.log('result' + result)
+            // console.log(result.outputs[0].data.regions[0].region_info.bounding_box)
 
-            
-
-        })
+            setData(prevState => ({
+                ...prevState,
+                box: calculateFaceLocation(result)
+            }))    
+        })    
         .catch(error => console.log('error', error));
+  }
+
+  const calculateFaceLocation = (data) => {
+    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box
+    const image = document.getElementById('input-image')
+    const width = Number(image.width)
+    const height = Number(image.height)
+    return {
+        leftCol: clarifaiFace.left_col * width,
+        topRow: clarifaiFace.top_row * height,
+        rightCol: width - (clarifaiFace.right_col * width),
+        bottomRow: height - (clarifaiFace.bottom_row * width)
+    }
+  }
+
+  const onRouteChange = (route) => {
+    setData(prevState => ({
+        ...prevState,
+        route: route
+    }))
   }
 
   return (
@@ -140,11 +177,24 @@ function App() {
             }}
         />
       }
-      <Navigation />
-      <Logo />
-      <Rank />
-      <ImageLinkForm onInputChange={onInputChange} onSubmit={onSubmit}/>
-      <FaceRecognition />
+      <Navigation onRouteChange={onRouteChange} route={data.route}/>
+      { data.route === 'signin'
+        ?
+        <SignIn onRouteChange={onRouteChange}/>
+        :
+        (
+            data.route === 'register'
+            ?
+            <Register onRouteChange={onRouteChange}/>
+            :
+            <>
+                <Logo />
+                <Rank />
+                <ImageLinkForm onInputChange={onInputChange} onSubmit={onSubmit}/>
+                <FaceRecognition box={data.box} imageURL={data.imageURL}/>
+            </>
+        )
+      }
     </>
   )
 }
